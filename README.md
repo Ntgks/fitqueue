@@ -11,6 +11,8 @@ Currently under development.
 - Validate class title and capacity
 - Return validation error messages
 - Schedule classes with a required future start time
+- Create members with name and email validation
+- Reject duplicate member emails with HTTP 409
 
 ## Tech stack
 
@@ -68,6 +70,7 @@ The API runs at http://localhost:8080.
 | GET | /api/classes | List classes |
 | GET | /api/classes/{id} | Find a class by ID |
 | POST | /api/classes | Create a class |
+| POST | /api/members | Create a member |
 
 ## Storage
 

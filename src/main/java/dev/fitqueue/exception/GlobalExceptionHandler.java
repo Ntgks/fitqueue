@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.dao.DataIntegrityViolationException;
 
 @RestControllerAdvice 
 public class GlobalExceptionHandler {
@@ -26,5 +27,15 @@ public class GlobalExceptionHandler {
             }
 
             return errors;
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public Map<String, String> handleDataIntegrityViolation(
+        DataIntegrityViolationException exception){
+
+            return Map.of(
+                "message", "The request conflicts with existing data or database constraints"
+            );
         }
 }
