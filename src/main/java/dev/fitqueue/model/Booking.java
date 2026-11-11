@@ -68,4 +68,18 @@ public class Booking {
         return createdAt;
     }
 
+    public void cancel(){
+        this.status = BookingStatus.CANCELLED;
+    }
+
+    public void confirm(){
+        if(this.status != BookingStatus.WAITLISTED){
+            throw new IllegalStateException(
+                "Only waitlisted bookings can be confirmed"
+            );
+        }
+
+        this.status = BookingStatus.CONFIRMED;
+    }
+
 }

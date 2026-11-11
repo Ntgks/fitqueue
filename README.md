@@ -15,6 +15,9 @@ Currently under development.
 - Reject duplicate member emails with HTTP 409
 - Book classes with automatic waitlisting when full
 - Reject duplicate bookings and bookings for started classes
+- Cancel bookings before the two-hour cancellation deadline
+- Automatically promote the first waitlisted booking when a confirmed booking is cancelled
+- Repeat cancellation requests without promoting another member
 
 ## Tech stack
 
@@ -74,11 +77,8 @@ The API runs at http://localhost:8080.
 | POST | /api/classes | Create a class |
 | POST | /api/members | Create a member |
 | POST | /api/classes/{classId}/bookings | Create a booking for a member |
+| DELETE | /api/classes/{classId}/bookings/{memberId} | Cancel a member's booking |
 
 ## Storage
 
 Classes are stored in PostgreSQL. Database schema changes are managed with Flyway.
-
-## Planned features
-- Booking cancellation
-- Automatic promotion from the waiting list

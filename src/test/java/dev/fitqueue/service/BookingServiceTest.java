@@ -182,4 +182,193 @@ class BookingServiceTest {
 
         verify(bookingRepository, never()).save(any(Booking.class));
     }
+
+    @Test 
+    void shouldPromoteWaitlistedBookingWhenConfirmedBookingIsCancelled() {
+        BookingRepository bookingRepository = mock(BookingRepository.class);
+        GymClassRepository gymClassRepository = mock(GymClassRepository.class);
+        MemberRepository memberRepository = mock(MemberRepository.class);
+
+        BookingService service = new BookingService(bookingRepository, gymClassRepository, memberRepository);
+
+        GymClass gymClass = new GymClass(
+            1L, 
+            "Yoga", 
+            1, 
+            Instant.now().plus(2, ChronoUnit.DAYS)
+        );
+
+        Member memberOne = new Member(1L, "Maria", "maria@example.com");
+
+        Member memberTwo = new Member(2L, "Vaggelis", "vaggelis@example.com");
+
+        Booking confirmedBooking = new Booking(
+            1L,
+            gymClass,
+            memberOne,
+            BookingStatus.CONFIRMED,
+            Instant.now().minus(2, ChronoUnit.HOURS)
+        );
+
+        Booking waitlistedBooking = new Booking(
+            2L,
+            gymClass,
+            memberTwo,
+            BookingStatus.WAITLISTED,
+            Instant.now().minus(1, ChronoUnit.HOURS)
+        );
+
+        when(gymClassRepository.findByIdForUpdate(1L))
+            .thenReturn(Optional.of(gymClass));
+
+        when(bookingRepository.findByGymClassIdAndMemberId(1L, 1L))
+            .thenReturn(Optional.of(confirmedBooking));
+
+        when(bookingRepository
+                .findFirstByGymClassIdAndStatusOrderByCreatedAtAscIdAsc(
+                    1L, BookingStatus.WAITLISTED))
+            .thenReturn(Optional.of(waitlistedBooking));
+
+        BookingResponse response = service.cancelBooking(1L, 1L);
+
+        assertEquals(BookingStatus.CANCELLED, response.status());
+        assertEquals(BookingStatus.CANCELLED, confirmedBooking.getBookingStatus());
+        assertEquals(BookingStatus.CONFIRMED, waitlistedBooking.getBookingStatus());
+    }
+
+    @Test
+    void shouldNotPromoteWhenWaitlistedBookingIsCancelled() {
+        BookingRepository bookingRepository = mock(BookingRepository.class);
+        GymClassRepository gymClassRepository = mock(GymClassRepository.class);
+        MemberRepository memberRepository = mock(MemberRepository.class);
+
+        BookingService service = new BookingService(bookingRepository, gymClassRepository, memberRepository);
+
+        GymClass gymClass = new GymClass(
+            1L, 
+            "Yoga", 
+            1, 
+            Instant.now().plus(2, ChronoUnit.DAYS)
+        );
+
+        Member member = new Member(1L, "Maria", "maria@example.com");
+
+        Booking waitlistedBooking = new Booking(
+            2L,
+            gymClass,
+            member,
+            BookingStatus.WAITLISTED,
+            Instant.now().minus(1, ChronoUnit.HOURS)
+        );
+
+        when(gymClassRepository.findByIdForUpdate(1L))
+            .thenReturn(Optional.of(gymClass));
+
+        when(bookingRepository.findByGymClassIdAndMemberId(1L, 1L))
+            .thenReturn(Optional.of(waitlistedBooking));
+
+        BookingResponse response = service.cancelBooking(1L, 1L);
+
+        assertEquals(BookingStatus.CANCELLED, response.status());
+
+        verify(bookingRepository, never())
+            .findFirstByGymClassIdAndStatusOrderByCreatedAtAscIdAsc(
+                1L, BookingStatus.WAITLISTED
+            );
+    }
+
+    @Test
+    void shouldRejectCancellationLessThanTwoHoursBeforeStart() {
+        BookingRepository bookingRepository = mock(BookingRepository.class);
+        GymClassRepository gymClassRepository = mock(GymClassRepository.class);
+        MemberRepository memberRepository = mock(MemberRepository.class);
+
+        BookingService service = new BookingService(bookingRepository, gymClassRepository, memberRepository);
+
+        GymClass gymClass = new GymClass(
+            1L, 
+            "Yoga", 
+            1, 
+            Instant.now().plus(1, ChronoUnit.HOURS)
+        );
+
+        Member member = new Member(1L, "Maria", "maria@example.com");
+
+        Booking confirmedBooking = new Booking(
+            2L,
+            gymClass,
+            member,
+            BookingStatus.CONFIRMED,
+            Instant.now().minus(1, ChronoUnit.HOURS)
+        );
+
+        when(gymClassRepository.findByIdForUpdate(1L))
+            .thenReturn(Optional.of(gymClass));
+
+        when(bookingRepository.findByGymClassIdAndMemberId(1L, 1L))
+            .thenReturn(Optional.of(confirmedBooking));
+
+        ResponseStatusException exception = assertThrows(
+            ResponseStatusException.class, 
+            () -> service.cancelBooking(1L, 1L)
+        );
+
+        assertEquals(HttpStatus.CONFLICT, exception.getStatusCode());
+
+        assertEquals(
+            BookingStatus.CONFIRMED,
+            confirmedBooking.getBookingStatus()
+        );
+
+        verify(bookingRepository, never())
+            .findFirstByGymClassIdAndStatusOrderByCreatedAtAscIdAsc(
+                1L, BookingStatus.WAITLISTED
+            );
+    }
+
+    @Test 
+    void shouldReturnCancelledBookingWithoutPromotingAgain() {
+        BookingRepository bookingRepository = mock(BookingRepository.class);
+        GymClassRepository gymClassRepository = mock(GymClassRepository.class);
+        MemberRepository memberRepository = mock(MemberRepository.class);
+
+        BookingService service = new BookingService(bookingRepository, gymClassRepository, memberRepository);
+
+        GymClass gymClass = new GymClass(
+            1L, 
+            "Yoga", 
+            1, 
+            Instant.now().plus(1, ChronoUnit.HOURS)
+        );
+
+        Member member = new Member(1L, "Maria", "maria@example.com");
+
+        Booking cancelledBooking = new Booking(
+            2L,
+            gymClass,
+            member,
+            BookingStatus.CANCELLED,
+            Instant.now().minus(1, ChronoUnit.HOURS)
+        );
+
+        when(gymClassRepository.findByIdForUpdate(1L))
+            .thenReturn(Optional.of(gymClass));
+
+        when(bookingRepository.findByGymClassIdAndMemberId(1L, 1L))
+            .thenReturn(Optional.of(cancelledBooking));
+
+        BookingResponse response = service.cancelBooking(1L, 1L);
+
+        assertEquals(BookingStatus.CANCELLED, response.status());
+
+        assertEquals(
+            BookingStatus.CANCELLED,
+            cancelledBooking.getBookingStatus()
+        );
+
+        verify(bookingRepository, never())
+            .findFirstByGymClassIdAndStatusOrderByCreatedAtAscIdAsc(
+                1L, BookingStatus.WAITLISTED
+            );
+    }
 }

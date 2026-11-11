@@ -13,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import dev.fitqueue.model.Member;
+
+import java.time.Duration;
 import java.time.Instant;
 import dev.fitqueue.model.BookingStatus;
 import dev.fitqueue.dto.BookingResponse;
@@ -88,5 +90,64 @@ public class BookingService {
             savedBooking.getBookingStatus(),
             savedBooking.getCreatedAt()
         );
+    }
+
+    @Transactional 
+    public BookingResponse cancelBooking(Long classId, Long memberId){
+        GymClass gymClass = gymClassRepository.findByIdForUpdate(classId)
+            .orElseThrow(() -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Gym class not found with id: " + classId
+        ));
+
+        Booking booking = bookingRepository
+            .findByGymClassIdAndMemberId(classId, memberId)
+            .orElseThrow(() -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Booking not found"
+        ));
+
+        if(booking.getBookingStatus() == BookingStatus.CANCELLED){
+            return new BookingResponse(
+                booking.getId(),
+                classId,
+                memberId,
+                booking.getBookingStatus(),
+                booking.getCreatedAt()
+            );
+        }
+
+        Instant cancellationDeadline = 
+            gymClass.getStartsAt().minus(Duration.ofHours(2));
+
+        if(!Instant.now().isBefore(cancellationDeadline)){
+            throw new ResponseStatusException(
+                HttpStatus.CONFLICT,
+                "Cancellation closes two hours before class starts"
+            );
+        }
+
+        boolean releaseSeat = 
+            booking.getBookingStatus() == BookingStatus.CONFIRMED;
+        
+        booking.cancel();
+
+        if(releaseSeat){
+            bookingRepository
+                .findFirstByGymClassIdAndStatusOrderByCreatedAtAscIdAsc(
+                    classId, 
+                    BookingStatus.WAITLISTED
+                )
+                .ifPresent(nextBooking -> nextBooking.confirm());
+        }
+
+        return new BookingResponse(
+            booking.getId(),
+            classId,
+            memberId,
+            booking.getBookingStatus(),
+            booking.getCreatedAt()
+        );
+
     }
 }

@@ -8,6 +8,7 @@ import dev.fitqueue.service.BookingService;
 import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,6 +31,13 @@ public class BookingController {
         @Valid @RequestBody CreateBookingRequest request){
             
             return bookingService.createBooking(classId, request.memberId());
-        }
+    }
+
+    @DeleteMapping("/api/classes/{classId}/bookings/{memberId}")
+    public BookingResponse cancelBooking(
+        @PathVariable Long classId,
+        @PathVariable  Long memberId){
+            return bookingService.cancelBooking(classId, memberId);
+    }
     
 }
