@@ -13,6 +13,8 @@ Currently under development.
 - Schedule classes with a required future start time
 - Create members with name and email validation
 - Reject duplicate member emails with HTTP 409
+- Book classes with automatic waitlisting when full
+- Reject duplicate bookings and bookings for started classes
 
 ## Tech stack
 
@@ -71,11 +73,12 @@ The API runs at http://localhost:8080.
 | GET | /api/classes/{id} | Find a class by ID |
 | POST | /api/classes | Create a class |
 | POST | /api/members | Create a member |
+| POST | /api/classes/{classId}/bookings | Create a booking for a member |
 
 ## Storage
 
 Classes are stored in PostgreSQL. Database schema changes are managed with Flyway.
 
 ## Planned features
-- Class bookings
-- Waiting list with automatic promotion
+- Booking cancellation
+- Automatic promotion from the waiting list
