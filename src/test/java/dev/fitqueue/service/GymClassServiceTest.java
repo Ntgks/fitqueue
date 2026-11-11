@@ -12,6 +12,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import dev.fitqueue.dto.CreateGymClassRequest;
+
 class GymClassServiceTest {
 
     @Test
@@ -33,5 +35,21 @@ class GymClassServiceTest {
         );
 
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+    }
+
+    @Test 
+    void shouldCreateAndStoreClass(){
+        GymClassService service = new GymClassService();
+
+        CreateGymClassRequest request = new CreateGymClassRequest("Yoga", 12);
+
+        GymClass gymClass = service.createClass(request);
+
+        assertEquals("Yoga", gymClass.getTitle());
+        assertEquals(12, gymClass.getCapacity());
+
+        GymClass storedClass = service.getClassById(gymClass.getId());
+
+        assertEquals("Yoga", storedClass.getTitle());
     }
 }
