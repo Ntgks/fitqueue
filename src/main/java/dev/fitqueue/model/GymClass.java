@@ -6,6 +6,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Column;
+import java.time.Instant;
 
 @Entity
 @Table(name = "gym_classes")
@@ -21,13 +22,17 @@ public class GymClass {
     @Column(nullable = false)
     private int capacity;
 
+    @Column(name = "starts_at", nullable = false)
+    private Instant startsAt;
+
     protected GymClass() {
     }
 
-    public GymClass(Long id, String title, int capacity){
+    public GymClass(Long id, String title, int capacity, Instant startsAt){
         this.id = id;
         this.title = title;
         this.capacity = capacity;
+        this.startsAt = startsAt;
     }
 
     public Long getId(){
@@ -40,5 +45,9 @@ public class GymClass {
 
     public int getCapacity(){
         return capacity;
+    }
+
+    public Instant getStartsAt() {
+        return startsAt;
     }
 }

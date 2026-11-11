@@ -28,11 +28,6 @@ public class GymClassController {
     public GymClassController(GymClassService gymClassService){
         this.gymClassService = gymClassService;
     }
-    
-    @GetMapping("/api/classes/example")
-    public GymClass getClassExample(){
-        return new GymClass(1L, "Strength Training", 10);
-    }
 
     @GetMapping("/api/classes")
     public List<GymClass> getClasses(){

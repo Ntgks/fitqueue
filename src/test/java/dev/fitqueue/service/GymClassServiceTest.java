@@ -24,6 +24,8 @@ import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
+import java.time.Instant;
+
 class GymClassServiceTest {
 
     @Test
@@ -32,7 +34,12 @@ class GymClassServiceTest {
 
         GymClassService service = new GymClassService(repository);
 
-        GymClass existingClass = new GymClass(2L, "Up training", 5);
+        GymClass existingClass = new GymClass(
+            2L, 
+            "Up training", 
+            5,
+            Instant.parse("2030-06-15T15:00:00Z")
+        );
 
         when(repository.findById(2L))
             .thenReturn(Optional.of(existingClass));
@@ -65,7 +72,11 @@ class GymClassServiceTest {
 
         GymClassService service = new GymClassService(repository);
 
-        CreateGymClassRequest request = new CreateGymClassRequest("Yoga", 12);
+        Instant startsAt = Instant.parse("2030-06-15T15:00:00Z");
+
+
+        CreateGymClassRequest request = 
+            new CreateGymClassRequest("Yoga", 12, startsAt);
 
         when(repository.save(any(GymClass.class)))
             .thenAnswer(invocation -> invocation.getArgument(0));
@@ -74,6 +85,7 @@ class GymClassServiceTest {
 
         assertEquals("Yoga", gymClass.getTitle());
         assertEquals(12, gymClass.getCapacity());
+        assertEquals(startsAt, gymClass.getStartsAt());
 
         verify(repository).save(gymClass);
     }

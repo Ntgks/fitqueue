@@ -10,6 +10,7 @@ Currently under development.
 - Create a class
 - Validate class title and capacity
 - Return validation error messages
+- Schedule classes with a required future start time
 
 ## Tech stack
 

@@ -38,7 +38,8 @@ public class GymClassService {
         GymClass gymClass = new GymClass(
             null, 
             request.title(), 
-            request.capacity()
+            request.capacity(),
+            request.startsAt()
         );
 
         return gymClassRepository.save(gymClass);
