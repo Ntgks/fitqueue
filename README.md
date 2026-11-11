@@ -19,24 +19,44 @@ Currently under development.
 
 ## Run locally
 
-Requires JDK 21. Maven is provided through the Maven Wrapper.
+Requires JDK 21 and Docker Desktop running.
+Maven is provided through the Maven Wrapper.
 
 ```bash
 git clone https://github.com/Ntgks/fitqueue.git
 cd fitqueue
 ```
 
-On Windows (PowerShell):
+Create a `.env` file in the project root:
+
+```dotenv
+DB_PASSWORD=fitqueue-local-dev-password
+```
+
+Start PostgreSQL:
+```bash
+docker compose up -d
+```
+
+The database is available at `localhost:5433`.
+
+
+Start the application on Windows (PowerShell):
 
 ```powershell
+$env:DB_PASSWORD = "fitqueue-local-dev-password"
 .\mvnw.cmd spring-boot:run
 ```
 
 On macOS / Linux:
 
 ```bash
+export DB_PASSWORD="fitqueue-local-dev-password"
 sh mvnw spring-boot:run
 ```
+
+Use the same password in `.env` and the environment variable.
+Docker Compose reads `.env`; Spring Boot uses the environment variable.
 
 The API runs at http://localhost:8080.
 
@@ -50,10 +70,8 @@ The API runs at http://localhost:8080.
 
 ## Storage
 
-Data is currently stored in memory and is reset when the application restarts.
+Classes are stored in PostgreSQL. Database schema changes are managed with Flyway.
 
 ## Planned features
-
-- PostgreSQL persistence
 - Class bookings
 - Waiting list with automatic promotion

@@ -1,10 +1,28 @@
 package dev.fitqueue.model;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import jakarta.persistence.Id;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Column;
+
+@Entity
+@Table(name = "gym_classes")
 public class GymClass {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false, length = 200)
     private String title;
+
+    @Column(nullable = false)
     private int capacity;
+
+    protected GymClass() {
+    }
 
     public GymClass(Long id, String title, int capacity){
         this.id = id;
