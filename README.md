@@ -19,6 +19,9 @@ Currently under development.
 - Automatically promote the first waitlisted booking when a confirmed booking is cancelled
 - Repeat cancellation requests without promoting another member
 - List class bookings in creation order, including their current status
+- Email and password authentication with BCrypt password hashing
+- MEMBER and ADMIN access rules
+- Session-based authentication with CSRF protection
 
 ## Tech stack
 
@@ -77,9 +80,11 @@ The API runs at http://localhost:8080.
 | GET | /api/classes/{id} | Find a class by ID |
 | POST | /api/classes | Create a class |
 | POST | /api/members | Create a member |
-| POST | /api/classes/{classId}/bookings | Create a booking for a member |
-| DELETE | /api/classes/{classId}/bookings/{memberId} | Cancel a member's booking |
+| POST | /api/classes/{classId}/bookings | Book a class for the authenticated member |
+| GET | /api/members/me | Get the authenticated member |
+| GET | /api/csrf | Get a CSRF token for the current session |
 | GET | /api/classes/{classId}/bookings | List bookings for a class |
+| DELETE | /api/classes/{classId}/bookings/me | Cancel the authenticated member's booking |
 
 ## Storage
 
@@ -108,3 +113,19 @@ A PostgreSQL integration test verifies that cancellation and automatic
 waitlist promotion are persisted in the database.
 Time-dependent booking rules are tested using a fixed Clock,
 including the exact two-hour cancellation deadline.
+
+## Authentication
+
+Authentication uses email and password through Spring Security form login
+with session cookies. Passwords are stored as BCrypt hashes.
+
+Registration requires name, email and password.
+New accounts receive the MEMBER role.
+
+Members create and cancel their own bookings. Booking creation requires no
+request body; the member is identified from the authenticated session.
+
+Creating classes and listing all bookings for a class require ADMIN.
+
+POST and DELETE requests require a CSRF token and the matching session cookie.
+Obtain a new token after login.
