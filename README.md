@@ -18,6 +18,7 @@ Currently under development.
 - Cancel bookings before the two-hour cancellation deadline
 - Automatically promote the first waitlisted booking when a confirmed booking is cancelled
 - Repeat cancellation requests without promoting another member
+- List class bookings in creation order, including their current status
 
 ## Tech stack
 
@@ -78,6 +79,7 @@ The API runs at http://localhost:8080.
 | POST | /api/members | Create a member |
 | POST | /api/classes/{classId}/bookings | Create a booking for a member |
 | DELETE | /api/classes/{classId}/bookings/{memberId} | Cancel a member's booking |
+| GET | /api/classes/{classId}/bookings | List bookings for a class |
 
 ## Storage
 

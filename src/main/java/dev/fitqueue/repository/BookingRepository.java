@@ -4,6 +4,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import dev.fitqueue.model.Booking;
 import dev.fitqueue.model.BookingStatus;
+
+import java.util.List;
 import java.util.Optional;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
@@ -19,4 +21,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     Optional<Booking> findFirstByGymClassIdAndStatusOrderByCreatedAtAscIdAsc(
         Long classId, BookingStatus status
     );
+
+    List<Booking> findByGymClassIdOrderByCreatedAtAscIdAsc(Long classId);
 }

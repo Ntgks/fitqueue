@@ -16,6 +16,9 @@ import dev.fitqueue.model.Member;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+
 import dev.fitqueue.model.BookingStatus;
 import dev.fitqueue.dto.BookingResponse;
 
@@ -149,5 +152,32 @@ public class BookingService {
             booking.getCreatedAt()
         );
 
+    }
+
+    @Transactional(readOnly = true)
+    public List<BookingResponse> getBookingsForClass(Long classId){
+        if (!gymClassRepository.existsById(classId)) {
+            throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Gym class not found with id: " + classId
+            );
+        }
+
+        List<Booking> bookings = 
+            bookingRepository.findByGymClassIdOrderByCreatedAtAscIdAsc(classId);
+
+        List<BookingResponse> responses = new ArrayList<>();
+
+        for (Booking booking : bookings) {
+            responses.add(new BookingResponse(
+                booking.getId(),
+                booking.getGymClass().getId(),
+                booking.getMember().getId(),
+                booking.getBookingStatus(),
+                booking.getCreatedAt()
+            ));
+        }
+
+        return responses;
     }
 }

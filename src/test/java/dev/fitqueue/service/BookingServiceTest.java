@@ -2,6 +2,7 @@ package dev.fitqueue.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -17,6 +18,7 @@ import dev.fitqueue.repository.MemberRepository;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Optional;
 
 import dev.fitqueue.dto.BookingResponse;
@@ -370,5 +372,87 @@ class BookingServiceTest {
             .findFirstByGymClassIdAndStatusOrderByCreatedAtAscIdAsc(
                 1L, BookingStatus.WAITLISTED
             );
+    }
+
+    @Test
+    void shouldReturnEmptyListWhenClassHasNoBookings(){
+        BookingRepository bookingRepository = mock(BookingRepository.class);
+        GymClassRepository gymClassRepository = mock(GymClassRepository.class);
+        MemberRepository memberRepository = mock(MemberRepository.class);
+
+        BookingService service = new BookingService(bookingRepository, gymClassRepository, memberRepository);
+
+        when(gymClassRepository.existsById(1L)).thenReturn(true);
+
+        when(bookingRepository.findByGymClassIdOrderByCreatedAtAscIdAsc(1L))
+            .thenReturn(List.of());
+
+        List<BookingResponse> result = service.getBookingsForClass(1L);
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void shouldRejectBookingListForMissingClass() {
+        BookingRepository bookingRepository = mock(BookingRepository.class);
+        GymClassRepository gymClassRepository = mock(GymClassRepository.class);
+        MemberRepository memberRepository = mock(MemberRepository.class);
+
+        BookingService service = new BookingService(bookingRepository, gymClassRepository, memberRepository);
+
+        when(gymClassRepository.existsById(99L)).thenReturn(false);
+
+        ResponseStatusException exception = assertThrows(
+            ResponseStatusException.class, 
+            () -> service.getBookingsForClass(99L)
+        );
+
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+
+        verify(bookingRepository, never())
+            .findByGymClassIdOrderByCreatedAtAscIdAsc(99L);
+    }
+
+    @Test 
+    void shouldReturnBookingsForClass() {
+        BookingRepository bookingRepository = mock(BookingRepository.class);
+        GymClassRepository gymClassRepository = mock(GymClassRepository.class);
+        MemberRepository memberRepository = mock(MemberRepository.class);
+
+        BookingService service = new BookingService(bookingRepository, gymClassRepository, memberRepository);
+
+        GymClass gymClass = new GymClass(
+            1L, 
+            "Yoga", 
+            1, 
+            Instant.now().plus(1, ChronoUnit.HOURS)
+        );
+
+        Member member = new Member(2L, "Maria", "maria@example.com");
+
+        Booking booking = new Booking(
+            3L,
+            gymClass,
+            member,
+            BookingStatus.CONFIRMED,
+            Instant.now().minus(1, ChronoUnit.HOURS)
+        );
+
+        when(gymClassRepository.existsById(1L)).thenReturn(true);
+
+        when(bookingRepository.findByGymClassIdOrderByCreatedAtAscIdAsc(1L))
+            .thenReturn(List.of(booking));
+
+        List<BookingResponse> result = service.getBookingsForClass(1L);
+
+        assertEquals(1, result.size());
+
+        BookingResponse response = result.get(0);
+
+        assertEquals(3L, response.id());
+        assertEquals(1L, response.classId());
+        assertEquals(2L, response.memberId());
+        assertEquals(BookingStatus.CONFIRMED, response.status());
+        assertEquals(booking.getCreatedAt(), response.createdAt());
     }
 }
