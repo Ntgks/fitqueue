@@ -23,4 +23,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     );
 
     List<Booking> findByGymClassIdOrderByCreatedAtAscIdAsc(Long classId);
+
+    List<Booking> findByMemberIdOrderByCreatedAtDescIdDesc(Long memberId);
 }

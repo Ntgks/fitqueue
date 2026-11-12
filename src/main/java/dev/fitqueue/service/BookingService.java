@@ -184,4 +184,31 @@ public class BookingService {
 
         return responses;
     }
+
+    @Transactional(readOnly = true)
+    public List<BookingResponse> getBookingsForMember(Long memberId) {
+        if (!memberRepository.existsById(memberId)) {
+            throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Member not found with id: " + memberId
+            );
+        }
+
+        List<Booking> bookings = 
+            bookingRepository.findByMemberIdOrderByCreatedAtDescIdDesc(memberId);
+
+        List<BookingResponse> responses = new ArrayList<>();
+
+        for(Booking booking : bookings) {
+            responses.add(new BookingResponse(
+                booking.getId(),
+                booking.getGymClass().getId(),
+                booking.getMember().getId(),
+                booking.getBookingStatus(),
+                booking.getCreatedAt()
+            ));
+        }
+
+        return responses;
+    }
 }

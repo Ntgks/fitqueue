@@ -32,9 +32,8 @@ import dev.fitqueue.dto.BookingResponse;
 import dev.fitqueue.model.BookingStatus;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 
 
 @WebMvcTest(BookingController.class)
@@ -148,5 +147,33 @@ public class BookingSecurityTest {
 
         verifyNoInteractions(bookingService, memberService);
 
+    }
+
+    @Test
+    @WithMockUser(username = "maria@example.com", roles = "MEMBER")
+    void shouldListBookingsForAuthenticatedMember() throws Exception {
+        when(memberService.getMemberByEmail("maria@example.com"))
+            .thenReturn(new MemberResponse(
+                7L, "Maria", "maria@example.com"
+            ));
+
+        when(bookingService.getBookingsForMember(7L))
+            .thenReturn(List.of());
+
+        mockMvc.perform(get("/api/bookings/me"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$").isArray());
+
+        verify(bookingService).getBookingsForMember(7L);
+    }
+
+    @Test 
+    void shouldRedirectAnonymousUserToLoginForMyBookings() throws Exception {
+        mockMvc.perform(get("/api/bookings/me")
+                .accept("text/html"))
+            .andExpect(status().isFound())
+            .andExpect(redirectedUrl("/login"));
+
+        verifyNoInteractions(bookingService, memberService);
     }
 }

@@ -558,4 +558,87 @@ class BookingServiceTest {
             confirmedBooking.getBookingStatus()
         );
     }
+
+    @Test 
+    void shouldReturnEmptyListWhenMemberHasNoBookings() {
+        BookingRepository bookingRepository = mock(BookingRepository.class);
+        GymClassRepository gymClassRepository = mock(GymClassRepository.class);
+        MemberRepository memberRepository = mock(MemberRepository.class);
+
+        BookingService service = new BookingService(bookingRepository, gymClassRepository, memberRepository, clock);
+
+        when(memberRepository.existsById(7L)).thenReturn(true);
+
+        when(bookingRepository.findByMemberIdOrderByCreatedAtDescIdDesc(7L))
+            .thenReturn(List.of());
+
+        List<BookingResponse> result = service.getBookingsForMember(7L);
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test 
+    void shouldRejectBookingListForMissingMember() {
+        BookingRepository bookingRepository = mock(BookingRepository.class);
+        GymClassRepository gymClassRepository = mock(GymClassRepository.class);
+        MemberRepository memberRepository = mock(MemberRepository.class);
+
+        BookingService service = new BookingService(bookingRepository, gymClassRepository, memberRepository, clock);
+
+        when(memberRepository.existsById(99L)).thenReturn(false);
+
+        ResponseStatusException exception = assertThrows(
+            ResponseStatusException.class, 
+            () -> service.getBookingsForMember(99L)
+        );
+
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+
+        verify(bookingRepository, never())
+            .findByMemberIdOrderByCreatedAtDescIdDesc(99L);
+
+    }
+
+    @Test 
+    void shouldReturnBookingsForMember() {
+        BookingRepository bookingRepository = mock(BookingRepository.class);
+        GymClassRepository gymClassRepository = mock(GymClassRepository.class);
+        MemberRepository memberRepository = mock(MemberRepository.class);
+
+        BookingService service = new BookingService(bookingRepository, gymClassRepository, memberRepository, clock);
+
+        GymClass gymClass = new GymClass(
+            1L, 
+            "Yoga", 
+            1, 
+            Instant.now(clock).plus(1, ChronoUnit.HOURS)
+        );
+
+        Member member = new Member(7L, "Maria", "maria@example.com");
+
+        Booking booking = new Booking(
+            3L,
+            gymClass,
+            member,
+            BookingStatus.CONFIRMED,
+            Instant.now(clock).minus(1, ChronoUnit.HOURS)
+        );
+
+        when(memberRepository.existsById(7L)).thenReturn(true);
+
+        when(bookingRepository.findByMemberIdOrderByCreatedAtDescIdDesc(7L))
+            .thenReturn(List.of(booking));
+
+        List<BookingResponse> result = service.getBookingsForMember(7L);
+
+        assertEquals(1, result.size());
+
+        BookingResponse response = result.get(0);
+
+        assertEquals(3L, response.id());
+        assertEquals(1L, response.classId());
+        assertEquals(7L, response.memberId());
+        assertEquals(BookingStatus.CONFIRMED, response.status());
+        assertEquals(booking.getCreatedAt(), response.createdAt());
+    }
 }

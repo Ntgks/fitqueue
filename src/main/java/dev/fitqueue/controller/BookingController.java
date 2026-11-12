@@ -18,6 +18,7 @@ import java.security.Principal;
 import dev.fitqueue.dto.MemberResponse;
 
 
+
 @RestController 
 public class BookingController {
     
@@ -55,7 +56,15 @@ public class BookingController {
     public List<BookingResponse> getBookingsForClass(
         @PathVariable Long classId){
             return bookingService.getBookingsForClass(classId);
-        }
+    }
+
+    @GetMapping("/api/bookings/me")
+    public List<BookingResponse> getMyBookings(Principal principal) {
+        MemberResponse member = 
+            memberService.getMemberByEmail(principal.getName());
+
+        return bookingService.getBookingsForMember(member.id());
+    }
     
     
 }

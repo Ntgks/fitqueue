@@ -22,6 +22,7 @@ Currently under development.
 - Email and password authentication with BCrypt password hashing
 - MEMBER and ADMIN access rules
 - Session-based authentication with CSRF protection
+- View the authenticated member's bookings, newest first
 
 ## Tech stack
 
@@ -85,6 +86,7 @@ The API runs at http://localhost:8080.
 | GET | /api/csrf | Get a CSRF token for the current session |
 | GET | /api/classes/{classId}/bookings | List bookings for a class |
 | DELETE | /api/classes/{classId}/bookings/me | Cancel the authenticated member's booking |
+| GET | /api/bookings/me | List the authenticated member's bookings |
 
 ## Storage
 
