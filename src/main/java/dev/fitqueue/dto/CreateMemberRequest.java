@@ -12,6 +12,10 @@ public record CreateMemberRequest(
     @NotBlank
     @Email 
     @Size(max = 200)
-    String email 
+    String email, 
+
+    @NotBlank 
+    @Size(min = 12, max = 64)
+    String password
 ){
 }
