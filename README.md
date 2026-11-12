@@ -102,3 +102,5 @@ sh mvnw test
 Unit tests cover booking rules, cancellation and waitlist promotion.
 A PostgreSQL integration test checks that two concurrent bookings for one seat
 produce one confirmed booking and one waitlisted booking.
+A PostgreSQL integration test verifies that cancellation and automatic
+waitlist promotion are persisted in the database.
