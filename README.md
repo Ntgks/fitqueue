@@ -82,3 +82,23 @@ The API runs at http://localhost:8080.
 ## Storage
 
 Classes are stored in PostgreSQL. Database schema changes are managed with Flyway.
+
+## Tests
+
+Requires Docker running for PostgreSQL integration tests.
+
+On Windows:
+
+```powershell
+.\mvnw.cmd test
+```
+
+On macOS / Linux:
+
+```bash
+sh mvnw test
+```
+
+Unit tests cover booking rules, cancellation and waitlist promotion.
+A PostgreSQL integration test checks that two concurrent bookings for one seat
+produce one confirmed booking and one waitlisted booking.
