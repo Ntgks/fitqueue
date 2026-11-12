@@ -64,12 +64,20 @@ public class BookingCancellationTest {
             new Member(null, "Vaggelis", "vaggelis-cancel@example.com")
         );
 
+        Member thirdMember = memberRepository.save(
+            new Member(null, "Nikos", "nikos-cancel@example.com")
+        );
+
         BookingResponse firstBooking = bookingService.createBooking(
             gymClass.getId(), firstMember.getId()
         );
 
         BookingResponse secondBooking = bookingService.createBooking(
             gymClass.getId(), secondMember.getId()
+        );
+
+        BookingResponse thirdBooking = bookingService.createBooking(
+            gymClass.getId(), thirdMember.getId()
         );
 
         assertEquals(BookingStatus.CONFIRMED, firstBooking.status());
@@ -95,6 +103,15 @@ public class BookingCancellationTest {
         assertEquals(
             BookingStatus.CONFIRMED, 
             promotedBooking.getBookingStatus()
+        );
+
+        Booking remainBooking = bookingRepository
+            .findById(thirdBooking.id())
+            .orElseThrow();
+
+        assertEquals(
+            BookingStatus.WAITLISTED, 
+            remainBooking.getBookingStatus()
         );
     }
 }
