@@ -22,17 +22,21 @@ import java.util.List;
 import dev.fitqueue.model.BookingStatus;
 import dev.fitqueue.dto.BookingResponse;
 
+import java.time.Clock;
+
 @Service
 public class BookingService {
 
     private final BookingRepository bookingRepository;
     private final GymClassRepository gymClassRepository;
     private final MemberRepository memberRepository;
+    private final Clock clock;
 
-    public BookingService(BookingRepository bookingRepository, GymClassRepository gymClassRepository, MemberRepository memberRepository){
+    public BookingService(BookingRepository bookingRepository, GymClassRepository gymClassRepository, MemberRepository memberRepository, Clock clock){
         this.bookingRepository = bookingRepository;
         this.gymClassRepository = gymClassRepository;
         this.memberRepository = memberRepository;
+        this.clock = clock;
     }
 
     @Transactional
@@ -56,7 +60,7 @@ public class BookingService {
             );
         }
 
-        if(!gymClass.getStartsAt().isAfter(Instant.now())) {
+        if(!gymClass.getStartsAt().isAfter(Instant.now(clock))) {
             throw new ResponseStatusException(
                 HttpStatus.CONFLICT,
                 "Cannot book a class that has already started"
@@ -81,7 +85,7 @@ public class BookingService {
             gymClass, 
             member, 
             status, 
-            Instant.now()
+            Instant.now(clock)
         );
 
         Booking savedBooking = bookingRepository.save(booking);
@@ -123,7 +127,7 @@ public class BookingService {
         Instant cancellationDeadline = 
             gymClass.getStartsAt().minus(Duration.ofHours(2));
 
-        if(!Instant.now().isBefore(cancellationDeadline)){
+        if(!Instant.now(clock).isBefore(cancellationDeadline)){
             throw new ResponseStatusException(
                 HttpStatus.CONFLICT,
                 "Cancellation closes two hours before class starts"

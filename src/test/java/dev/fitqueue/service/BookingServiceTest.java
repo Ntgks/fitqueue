@@ -29,7 +29,15 @@ import dev.fitqueue.model.Member;
 
 import static org.mockito.Mockito.when;
 
+import java.time.Clock;
+import java.time.ZoneOffset;
+
 class BookingServiceTest {
+
+    private final Clock clock = Clock.fixed(
+        Instant.parse("2030-06-15T12:00:00Z"), 
+        ZoneOffset.UTC
+    );
 
     @Test
     void shouldConfirmBookingWhenSeatIsAvailable() {
@@ -37,13 +45,13 @@ class BookingServiceTest {
         GymClassRepository gymClassRepository = mock(GymClassRepository.class);
         MemberRepository memberRepository = mock(MemberRepository.class);
 
-        BookingService service = new BookingService(bookingRepository, gymClassRepository, memberRepository);
+        BookingService service = new BookingService(bookingRepository, gymClassRepository, memberRepository, clock);
 
         GymClass gymClass = new GymClass(
             1L, 
             "Yoga", 
             1, 
-            Instant.now().plus(2, ChronoUnit.DAYS)
+            Instant.now(clock).plus(2, ChronoUnit.DAYS)
         );
 
         Member member = new Member(1L, "Maria", "maria@example.com");
@@ -78,13 +86,13 @@ class BookingServiceTest {
         GymClassRepository gymClassRepository = mock(GymClassRepository.class);
         MemberRepository memberRepository = mock(MemberRepository.class);
 
-        BookingService service = new BookingService(bookingRepository, gymClassRepository, memberRepository);
+        BookingService service = new BookingService(bookingRepository, gymClassRepository, memberRepository, clock);
 
         GymClass gymClass = new GymClass(
             1L, 
             "Yoga", 
             1, 
-            Instant.now().plus(2, ChronoUnit.DAYS)
+            Instant.now(clock).plus(2, ChronoUnit.DAYS)
         );
 
         Member member = new Member(1L, "Maria", "maria@example.com");
@@ -119,13 +127,13 @@ class BookingServiceTest {
         GymClassRepository gymClassRepository = mock(GymClassRepository.class);
         MemberRepository memberRepository = mock(MemberRepository.class);
 
-        BookingService service = new BookingService(bookingRepository, gymClassRepository, memberRepository);
+        BookingService service = new BookingService(bookingRepository, gymClassRepository, memberRepository, clock);
 
         GymClass gymClass = new GymClass(
             1L, 
             "Yoga", 
             1, 
-            Instant.now().plus(2, ChronoUnit.DAYS)
+            Instant.now(clock).plus(2, ChronoUnit.DAYS)
         );
 
         Member member = new Member(1L, "Maria", "maria@example.com");
@@ -155,13 +163,13 @@ class BookingServiceTest {
         GymClassRepository gymClassRepository = mock(GymClassRepository.class);
         MemberRepository memberRepository = mock(MemberRepository.class);
 
-        BookingService service = new BookingService(bookingRepository, gymClassRepository, memberRepository);
+        BookingService service = new BookingService(bookingRepository, gymClassRepository, memberRepository, clock);
 
         GymClass gymClass = new GymClass(
             1L, 
             "Yoga", 
             1, 
-            Instant.now().minus(1, ChronoUnit.HOURS)
+            Instant.now(clock).minus(1, ChronoUnit.HOURS)
         );
 
         Member member = new Member(1L, "Maria", "maria@example.com");
@@ -191,13 +199,13 @@ class BookingServiceTest {
         GymClassRepository gymClassRepository = mock(GymClassRepository.class);
         MemberRepository memberRepository = mock(MemberRepository.class);
 
-        BookingService service = new BookingService(bookingRepository, gymClassRepository, memberRepository);
+        BookingService service = new BookingService(bookingRepository, gymClassRepository, memberRepository, clock);
 
         GymClass gymClass = new GymClass(
             1L, 
             "Yoga", 
             1, 
-            Instant.now().plus(2, ChronoUnit.DAYS)
+            Instant.now(clock).plus(2, ChronoUnit.DAYS)
         );
 
         Member memberOne = new Member(1L, "Maria", "maria@example.com");
@@ -209,7 +217,7 @@ class BookingServiceTest {
             gymClass,
             memberOne,
             BookingStatus.CONFIRMED,
-            Instant.now().minus(2, ChronoUnit.HOURS)
+            Instant.now(clock).minus(2, ChronoUnit.HOURS)
         );
 
         Booking waitlistedBooking = new Booking(
@@ -217,7 +225,7 @@ class BookingServiceTest {
             gymClass,
             memberTwo,
             BookingStatus.WAITLISTED,
-            Instant.now().minus(1, ChronoUnit.HOURS)
+            Instant.now(clock).minus(1, ChronoUnit.HOURS)
         );
 
         when(gymClassRepository.findByIdForUpdate(1L))
@@ -244,13 +252,13 @@ class BookingServiceTest {
         GymClassRepository gymClassRepository = mock(GymClassRepository.class);
         MemberRepository memberRepository = mock(MemberRepository.class);
 
-        BookingService service = new BookingService(bookingRepository, gymClassRepository, memberRepository);
+        BookingService service = new BookingService(bookingRepository, gymClassRepository, memberRepository, clock);
 
         GymClass gymClass = new GymClass(
             1L, 
             "Yoga", 
             1, 
-            Instant.now().plus(2, ChronoUnit.DAYS)
+            Instant.now(clock).plus(2, ChronoUnit.DAYS)
         );
 
         Member member = new Member(1L, "Maria", "maria@example.com");
@@ -260,7 +268,7 @@ class BookingServiceTest {
             gymClass,
             member,
             BookingStatus.WAITLISTED,
-            Instant.now().minus(1, ChronoUnit.HOURS)
+            Instant.now(clock).minus(1, ChronoUnit.HOURS)
         );
 
         when(gymClassRepository.findByIdForUpdate(1L))
@@ -285,13 +293,13 @@ class BookingServiceTest {
         GymClassRepository gymClassRepository = mock(GymClassRepository.class);
         MemberRepository memberRepository = mock(MemberRepository.class);
 
-        BookingService service = new BookingService(bookingRepository, gymClassRepository, memberRepository);
+        BookingService service = new BookingService(bookingRepository, gymClassRepository, memberRepository, clock);
 
         GymClass gymClass = new GymClass(
             1L, 
             "Yoga", 
             1, 
-            Instant.now().plus(1, ChronoUnit.HOURS)
+            Instant.now(clock).plus(1, ChronoUnit.HOURS)
         );
 
         Member member = new Member(1L, "Maria", "maria@example.com");
@@ -301,7 +309,7 @@ class BookingServiceTest {
             gymClass,
             member,
             BookingStatus.CONFIRMED,
-            Instant.now().minus(1, ChronoUnit.HOURS)
+            Instant.now(clock).minus(1, ChronoUnit.HOURS)
         );
 
         when(gymClassRepository.findByIdForUpdate(1L))
@@ -334,13 +342,13 @@ class BookingServiceTest {
         GymClassRepository gymClassRepository = mock(GymClassRepository.class);
         MemberRepository memberRepository = mock(MemberRepository.class);
 
-        BookingService service = new BookingService(bookingRepository, gymClassRepository, memberRepository);
+        BookingService service = new BookingService(bookingRepository, gymClassRepository, memberRepository, clock);
 
         GymClass gymClass = new GymClass(
             1L, 
             "Yoga", 
             1, 
-            Instant.now().plus(1, ChronoUnit.HOURS)
+            Instant.now(clock).plus(1, ChronoUnit.HOURS)
         );
 
         Member member = new Member(1L, "Maria", "maria@example.com");
@@ -350,7 +358,7 @@ class BookingServiceTest {
             gymClass,
             member,
             BookingStatus.CANCELLED,
-            Instant.now().minus(1, ChronoUnit.HOURS)
+            Instant.now(clock).minus(1, ChronoUnit.HOURS)
         );
 
         when(gymClassRepository.findByIdForUpdate(1L))
@@ -380,7 +388,7 @@ class BookingServiceTest {
         GymClassRepository gymClassRepository = mock(GymClassRepository.class);
         MemberRepository memberRepository = mock(MemberRepository.class);
 
-        BookingService service = new BookingService(bookingRepository, gymClassRepository, memberRepository);
+        BookingService service = new BookingService(bookingRepository, gymClassRepository, memberRepository, clock);
 
         when(gymClassRepository.existsById(1L)).thenReturn(true);
 
@@ -398,7 +406,7 @@ class BookingServiceTest {
         GymClassRepository gymClassRepository = mock(GymClassRepository.class);
         MemberRepository memberRepository = mock(MemberRepository.class);
 
-        BookingService service = new BookingService(bookingRepository, gymClassRepository, memberRepository);
+        BookingService service = new BookingService(bookingRepository, gymClassRepository, memberRepository, clock);
 
         when(gymClassRepository.existsById(99L)).thenReturn(false);
 
@@ -419,13 +427,13 @@ class BookingServiceTest {
         GymClassRepository gymClassRepository = mock(GymClassRepository.class);
         MemberRepository memberRepository = mock(MemberRepository.class);
 
-        BookingService service = new BookingService(bookingRepository, gymClassRepository, memberRepository);
+        BookingService service = new BookingService(bookingRepository, gymClassRepository, memberRepository, clock);
 
         GymClass gymClass = new GymClass(
             1L, 
             "Yoga", 
             1, 
-            Instant.now().plus(1, ChronoUnit.HOURS)
+            Instant.now(clock).plus(1, ChronoUnit.HOURS)
         );
 
         Member member = new Member(2L, "Maria", "maria@example.com");
@@ -435,7 +443,7 @@ class BookingServiceTest {
             gymClass,
             member,
             BookingStatus.CONFIRMED,
-            Instant.now().minus(1, ChronoUnit.HOURS)
+            Instant.now(clock).minus(1, ChronoUnit.HOURS)
         );
 
         when(gymClassRepository.existsById(1L)).thenReturn(true);
@@ -454,5 +462,100 @@ class BookingServiceTest {
         assertEquals(2L, response.memberId());
         assertEquals(BookingStatus.CONFIRMED, response.status());
         assertEquals(booking.getCreatedAt(), response.createdAt());
+    }
+
+    @Test
+    void shouldRejectCancellationExactlyTwoHoursBeforeStart() {
+        BookingRepository bookingRepository = mock(BookingRepository.class);
+        GymClassRepository gymClassRepository = mock(GymClassRepository.class);
+        MemberRepository memberRepository = mock(MemberRepository.class);
+
+        BookingService service = new BookingService(bookingRepository, gymClassRepository, memberRepository, clock);
+
+        GymClass gymClass = new GymClass(
+            1L, 
+            "Yoga", 
+            1, 
+            Instant.now(clock).plus(2, ChronoUnit.HOURS)
+        );
+
+        Member member = new Member(1L, "Maria", "maria@example.com");
+
+        Booking confirmedBooking = new Booking(
+            2L,
+            gymClass,
+            member,
+            BookingStatus.CONFIRMED,
+            Instant.now(clock).minus(1, ChronoUnit.HOURS)
+        );
+
+        when(gymClassRepository.findByIdForUpdate(1L))
+            .thenReturn(Optional.of(gymClass));
+
+        when(bookingRepository.findByGymClassIdAndMemberId(1L, 1L))
+            .thenReturn(Optional.of(confirmedBooking));
+
+        ResponseStatusException exception = assertThrows(
+            ResponseStatusException.class, 
+            () -> service.cancelBooking(1L, 1L)
+        );
+
+        assertEquals(HttpStatus.CONFLICT, exception.getStatusCode());
+
+        assertEquals(
+            BookingStatus.CONFIRMED,
+            confirmedBooking.getBookingStatus()
+        );
+
+        verify(bookingRepository, never())
+            .findFirstByGymClassIdAndStatusOrderByCreatedAtAscIdAsc(
+                1L, BookingStatus.WAITLISTED
+            );
+    }
+
+    @Test
+    void shouldAllowCancellationJustBeforeDeadline() {
+        BookingRepository bookingRepository = mock(BookingRepository.class);
+        GymClassRepository gymClassRepository = mock(GymClassRepository.class);
+        MemberRepository memberRepository = mock(MemberRepository.class);
+
+        BookingService service = new BookingService(bookingRepository, gymClassRepository, memberRepository, clock);
+
+        GymClass gymClass = new GymClass(
+            1L, 
+            "Yoga", 
+            1, 
+            Instant.now(clock).plus(2, ChronoUnit.HOURS).plusSeconds(1)
+        );
+
+        Member member = new Member(1L, "Maria", "maria@example.com");
+
+        Booking confirmedBooking = new Booking(
+            2L,
+            gymClass,
+            member,
+            BookingStatus.CONFIRMED,
+            Instant.now(clock).minus(1, ChronoUnit.HOURS)
+        );
+
+        when(bookingRepository.findByGymClassIdAndMemberId(1L, 1L))
+            .thenReturn(Optional.of(confirmedBooking));
+
+        when(gymClassRepository.findByIdForUpdate(1L))
+            .thenReturn(Optional.of(gymClass));
+
+        when(bookingRepository
+            .findFirstByGymClassIdAndStatusOrderByCreatedAtAscIdAsc(
+                1L, BookingStatus.WAITLISTED))
+            .thenReturn(Optional.empty());
+
+        BookingResponse response = service.cancelBooking(1L, 1L);
+
+        assertEquals(BookingStatus.CANCELLED, response.status());
+
+        assertEquals(
+            BookingStatus.CANCELLED,
+            confirmedBooking.getBookingStatus()
+        );
     }
 }

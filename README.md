@@ -106,3 +106,5 @@ A PostgreSQL integration test checks that two concurrent bookings for one seat
 produce one confirmed booking and one waitlisted booking.
 A PostgreSQL integration test verifies that cancellation and automatic
 waitlist promotion are persisted in the database.
+Time-dependent booking rules are tested using a fixed Clock,
+including the exact two-hour cancellation deadline.
