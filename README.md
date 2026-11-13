@@ -30,6 +30,27 @@ Currently under development.
 - Spring Boot 4.1.2
 - Maven
 
+## Architecture
+
+```mermaid
+flowchart TD
+    Client["Browser / API client"] --> Security["Spring Security filters"]
+    Security --> Controller["Controllers"]
+    Controller --> Service["Services"]
+    Service --> Repository["Spring Data JPA repositories"]
+    Repository --> Database[("PostgreSQL")]
+```
+
+Controllers handle HTTP requests and identify the authenticated member.
+Services apply booking rules and manage transactions.
+Repositories read and write PostgreSQL data through JPA.
+
+Booking creation and cancellation lock the same class row using
+PESSIMISTIC_WRITE within a transaction. This serializes these operations
+for a given class, protecting seat allocation and waitlist promotion.
+
+Flyway migrations define and version the database schema.
+
 ## Run locally
 
 Requires JDK 21 and Docker Desktop running.
