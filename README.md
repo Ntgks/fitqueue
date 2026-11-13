@@ -53,8 +53,9 @@ Flyway migrations define and version the database schema.
 
 ## Run locally
 
-Requires JDK 21 and Docker Desktop running.
-Maven is provided through the Maven Wrapper.
+### Option 1: Docker Compose
+
+Requires Docker Desktop running. No local Java or Maven installation is needed.
 
 ```bash
 git clone https://github.com/Ntgks/fitqueue.git
@@ -67,15 +68,45 @@ Create a `.env` file in the project root:
 DB_PASSWORD=fitqueue-local-dev-password
 ```
 
-Start PostgreSQL:
+Build and start the application and PostgreSQL:
+
 ```bash
-docker compose up -d
+docker compose up --build -d
 ```
 
-The database is available at `localhost:5433`.
+Follow application startup logs:
 
+```bash
+docker compose logs -f api
+```
 
-Start the application on Windows (PowerShell):
+The API is available at http://localhost:8080 once startup completes.
+PostgreSQL is available at localhost:5433.
+
+Stop the containers while retaining database data:
+
+```bash
+docker compose down
+```
+
+### Option 2: Run Java locally
+
+Requires JDK 21 and Docker Desktop running.
+Maven is provided through the Maven Wrapper.
+
+Create the `.env` file described above, then start only PostgreSQL:
+
+```bash
+docker compose up -d db
+```
+
+If the API container is already running, stop it first to free port 8080:
+
+```bash
+docker compose stop api
+```
+
+On Windows (PowerShell):
 
 ```powershell
 $env:DB_PASSWORD = "fitqueue-local-dev-password"
@@ -89,10 +120,10 @@ export DB_PASSWORD="fitqueue-local-dev-password"
 sh mvnw spring-boot:run
 ```
 
-Use the same password in `.env` and the environment variable.
-Docker Compose reads `.env`; Spring Boot uses the environment variable.
+Use the same database password in `.env` and the environment variable.
+Docker Compose reads `.env`; local Spring Boot uses the environment variable.
 
-The API runs at http://localhost:8080.
+Run only one backend instance on port 8080 at a time.
 
 ## API endpoints
 
@@ -115,7 +146,8 @@ Classes are stored in PostgreSQL. Database schema changes are managed with Flywa
 
 ## Tests
 
-Requires Docker running for PostgreSQL integration tests.
+Running tests locally requires JDK 21 and Docker running.
+PostgreSQL integration tests use Testcontainers.
 
 On Windows:
 
