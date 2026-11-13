@@ -131,3 +131,8 @@ Creating classes and listing all bookings for a class require ADMIN.
 
 POST and DELETE requests require a CSRF token and the matching session cookie.
 Obtain a new token after login.
+
+## Demo walkthrough
+
+See the [PowerShell demo guide](docs/demo.md) for registration, login,
+class creation, booking and cancellation.
